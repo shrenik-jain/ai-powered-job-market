@@ -66,10 +66,8 @@ def preprocess_data(df: pd.DataFrame) -> tuple:
 
     data = np.hstack((x, y))
     data = scaler.fit_transform(data)
-
     x = data[:, :-1]
     y = data[:, -1]
-
     x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=42, test_size=0.2)
     return (x_train, x_test, y_train, y_test)
 
@@ -94,7 +92,6 @@ def load_models() -> tuple:
     models = [rfc, gbc, abc, etc, svr, lnr, xgb, lgb]
     names = ["Random Forest", "Gradient Boosting", "Ada Boost", "Extra Trees",
             "Support Vector Machine", "Linear Regression", "XGBoost", "LightGBM"]
-    
     return (models, names)
 
 
@@ -129,9 +126,9 @@ def training(models: list, names: list, x_train: np.ndarray, x_test: np.ndarray,
     dd = pd.DataFrame({"mse": mses, "r2": r2s}, index=names)
     fig, axes = plt.subplots(ncols=2, figsize=(15, 6))
     index = 0
-
     dd = dd.sort_values("r2", ascending=False)
     dd["r2"].plot(kind="bar", ax=axes[index])
+
     for container in axes[index].containers:
         axes[index].bar_label(container)
     axes[index].set_yticklabels(())
@@ -148,7 +145,6 @@ def training(models: list, names: list, x_train: np.ndarray, x_test: np.ndarray,
     axes[index].set_xlabel("")
     axes[index].set_ylabel("")
     axes[index].set_title("MSE score")
-
     plt.tight_layout()
     plt.show()
 
@@ -173,7 +169,6 @@ def train_classifier(df: pd.DataFrame) -> tuple:
     y_pred = model.predict(X_test)
     acc = accuracy_score(y_test, y_pred)
     report = classification_report(y_test, y_pred)
-
     return (model, acc, report)
 
 if __name__ == "__main__":
@@ -202,4 +197,3 @@ if __name__ == "__main__":
     print("\nAccuracy: ", acc)
     print("\nClassification Report: ", report)
     print("="*50)
-
