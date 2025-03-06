@@ -53,7 +53,7 @@ This project aims to analyze the evolving job market in the age of AI by examini
 <br>
 
 ## Contributors
-- Shrenik Jain
+- [Shrenik Jain](https://shrenik-jain.github.io/)
 - Darshan Billavara Balakrishna
 - Jiajian Zhu
 - Hengmeng Zhuang
