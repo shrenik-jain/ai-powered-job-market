@@ -50,6 +50,7 @@ This project aims to analyze the evolving job market in the age of AI by examini
 
 4. Run the main script: python3 main.py
 
+5. To view the plots and visualizations, you can run the AI_Job_Market.ipynb notebook either locally or in a [Google Colab environment](https://colab.research.google.com/notebooks/intro.ipynb)
 <br>
 
 ## Contributors
