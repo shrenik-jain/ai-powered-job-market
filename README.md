@@ -49,7 +49,7 @@ This project aims to analyze the evolving job market in the age of AI by examini
 
 1. Clone the repository: https://github.com/shrenik-jain/ai-powered-job-market.git
 
-2. Install the required dependencies: pip3 install -r requirements.txt
+2. Install the required dependencies: `pip3 install -r requirements.txt`
 
 3. The data is present inside the `/data` folder as `.csv` files
 

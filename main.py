@@ -19,11 +19,11 @@ def main():
     script1 = "scripts/ai_impact_on_jobs.py"
     script2 = "scripts/ai_job_market_insights.py"
 
-    print("\nRunning ai_impact_on_jobs.py on AI Impact On Jobs Dataset...\n")
+    print(f"\nRunning {script1}")
     run_script(script_name=script1)
     print("\nSleeping for 2 seconds...\n")
     sleep(2)
-    print("\nRunning ai_job_market_insights.py on AI Job Market Insights Dataset...\n")
+    print(f"\nRunning {script2}")
     run_script(script_name=script2)
 
 if __name__ == "__main__":

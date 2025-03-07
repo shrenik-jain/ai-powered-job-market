@@ -1,118 +1,205 @@
-import numpy as np
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_squared_error, r2_score
-from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
-from sklearn.cluster import KMeans
-from sklearn.metrics import silhouette_score
+from sklearn.preprocessing import LabelEncoder, MinMaxScaler
+from sklearn.metrics import classification_report, mean_squared_error, r2_score, accuracy_score
 
-def load_data(filepath):
-    """Loads dataset from a CSV file."""
-    df = pd.read_csv(filepath)
-    print("Dataset Shape:", df.shape)
-    print("Columns:", df.columns.tolist())
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor, GradientBoostingRegressor, AdaBoostRegressor, ExtraTreesRegressor
+from sklearn.linear_model import LinearRegression
+from sklearn.svm import SVR
+
+from xgboost import XGBRegressor
+from lightgbm import LGBMRegressor
+
+
+def load_data(csv_path: str) -> pd.DataFrame:
+    """
+    Load data from a csv file
+
+    Args:
+        csv_path (str): the path to the csv file
+
+    Returns:
+        df (pd.DataFrame): a pandas dataframe
+    """
+    # validate the input
+    assert isinstance(csv_path, str), "csv_path must be a string"
+    assert csv_path.endswith(".csv"), "csv_path must be a path to a csv file"
+
+    df = pd.read_csv(csv_path)
+    print("\nData shape: ", df.shape)
+    print("\nData columns: ", df.columns.tolist())
+    print("\n Statistics of the Data")
+    print(df.describe())
     return df
 
-def clean_data(df):
-    """Cleans the dataset by handling missing values and duplicates."""
-    df.replace([np.inf, -np.inf], np.nan, inplace=True)
-    df['AI_Workload_Ratio'].fillna(df['AI_Workload_Ratio'].mean(), inplace=True)
-    df.drop_duplicates(inplace=True)
-    
-    # Convert 'AI Impact' percentage string to float
-    df['AI Impact'] = df['AI Impact'].astype(str).str.rstrip('%').astype(float) / 100
-    return df
 
-def visualize_data(df):
-    """Creates visualizations including histograms, heatmaps, and pair plots."""
-    numeric_cols = df.select_dtypes(include=['number']).columns
+def preprocess_data(df: pd.DataFrame) -> tuple:
+    """
+    Preprocess the data by encoding the categorical variables, scaling the data and 
+    splitting the data into training and testing sets
+
+    Args:
+        df (pd.DataFrame): the dataframe to be preprocessed
     
-    for col in numeric_cols:
-        plt.figure(figsize=(8, 6))
-        sns.histplot(df[col], kde=True, bins=30)
-        plt.title(f"Distribution of {col}")
-        plt.xlabel(col)
-        plt.ylabel("Frequency")
-        plt.show()
-    
-    corr = df[numeric_cols].corr()
-    plt.figure(figsize=(8, 6))
-    sns.heatmap(corr, annot=True, cmap='coolwarm', fmt=".2f", linewidths=0.5)
-    plt.title("Correlation Heatmap")
-    plt.show()
-    
-    sns.pairplot(df[numeric_cols], diag_kind='kde', height=2.5)
-    plt.suptitle("Pairplot of Numerical Variables", y=1.02)
+    Returns:
+        x_train, x_test, y_train, y_test (np.ndarray): the training and testing sets
+    """
+    # validate the input
+    assert isinstance(df, pd.DataFrame), "df must be a pandas dataframe"
+    assert df.shape[0] > 0, "df must not be empty"
+    assert df.shape[1] > 1, "df must have more than one column"
+
+    label_encoder = LabelEncoder()
+    scaler = MinMaxScaler()
+    salary = "Salary_USD"
+    cats = [i for i in df.columns if i != salary]
+    for i in cats:
+        df[i] = label_encoder.fit_transform(df[i].values)
+
+    x = df.drop(salary, axis=1).values
+    y = df[salary].values
+    y = y.reshape(-1, 1)
+
+    data = np.hstack((x, y))
+    data = scaler.fit_transform(data)
+    x = data[:, :-1]
+    y = data[:, -1]
+    x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=42, test_size=0.2)
+    return (x_train, x_test, y_train, y_test)
+
+
+def load_models() -> tuple:
+    """
+    Load the models to be used for training
+
+    Returns:
+        models (list): a list of models
+        names (list): a list of the names of the models
+    """
+    rfc = RandomForestRegressor()
+    gbc = GradientBoostingRegressor()
+    abc = AdaBoostRegressor()
+    etc = ExtraTreesRegressor()
+    svr = SVR()
+    lnr = LinearRegression()
+    xgb = XGBRegressor()
+    lgb = LGBMRegressor(verbose=-100)
+
+    models = [rfc, gbc, abc, etc, svr, lnr, xgb, lgb]
+    names = ["Random Forest", "Gradient Boosting", "Ada Boost", "Extra Trees",
+            "Support Vector Machine", "Linear Regression", "XGBoost", "LightGBM"]
+    return (models, names)
+
+
+def training(models: list, names: list, x_train: np.ndarray, x_test: np.ndarray, y_train: np.ndarray, y_test: np.ndarray) -> None:
+    """
+    Train the models and evaluate their performance using the mean squared error and r2 score
+
+    Args:
+        models (list): a list of models
+        names (list): a list of the names of the models
+        x_train (np.ndarray): the training data
+        x_test (np.ndarray): the testing data
+        y_train (np.ndarray): the training labels
+        y_test (np.ndarray): the testing labels
+    """
+    # validate the input
+    assert isinstance(models, list), "models must be a list"
+    assert isinstance(names, list), "names must be a list"
+    assert len(models) == len(names), "models and names must have the same length"
+    assert isinstance(x_train, np.ndarray), "x_train must be a numpy array"
+    assert isinstance(x_test, np.ndarray), "x_test must be a numpy array"
+    assert isinstance(y_train, np.ndarray), "y_train must be a numpy array"
+    assert isinstance(y_test, np.ndarray), "y_test must be a numpy array"
+
+    mses, r2s = [], []
+    for i, j in zip(models, names):
+        i.fit(x_train, y_train)
+        pred = i.predict(x_test)
+        mses += [mean_squared_error(pred, y_test)]
+        r2s += [r2_score(pred, y_test)]
+
+    dd = pd.DataFrame({"mse": mses, "r2": r2s}, index=names)
+    fig, axes = plt.subplots(ncols=2, figsize=(15, 6))
+    index = 0
+    dd = dd.sort_values("r2", ascending=False)
+    dd["r2"].plot(kind="bar", ax=axes[index])
+
+    for container in axes[index].containers:
+        axes[index].bar_label(container)
+    axes[index].set_yticklabels(())
+    axes[index].set_xlabel("")
+    axes[index].set_ylabel("")
+    axes[index].set_title("R2 score")
+    index += 1
+    dd = dd.sort_values("mse", ascending=True)
+    dd["mse"].plot(kind="bar", ax=axes[index])
+
+    for container in axes[index].containers:
+        axes[index].bar_label(container)
+    axes[index].set_yticklabels(())
+    axes[index].set_xlabel("")
+    axes[index].set_ylabel("")
+    axes[index].set_title("MSE score")
+    plt.tight_layout()
     plt.show()
 
-def train_regression_model(df):
-    """Trains a Random Forest model to predict AI Impact."""
-    df = df.dropna(subset=['AI Impact'])
-    features = ['Tasks', 'AI models', 'AI_Workload_Ratio']
-    X = df[features]
-    y = df['AI Impact']
-    
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    model = RandomForestRegressor(n_estimators=100, random_state=42)
+
+def train_classifier(df: pd.DataFrame) -> tuple:
+    """
+    Train a classifier to predict the Automation Risk
+
+    Args:
+        df (pd.DataFrame): the dataframe to be used for training
+    """
+    assert isinstance(df, pd.DataFrame), "df must be a pandas dataframe"
+    assert df.shape[0] > 0, "df must not be empty"
+    assert df.shape[1] > 1, "df must have more than one column"
+
+    X = pd.get_dummies(df.drop(['Automation_Risk'], axis=1), drop_first=True)
+    y = df['Automation_Risk']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.35, random_state=42)
+
+    model = RandomForestClassifier(n_estimators=100, random_state=42)
     model.fit(X_train, y_train)
-    
     y_pred = model.predict(X_test)
-    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-    r2 = r2_score(y_test, y_pred)
-    print(f"RMSE: {rmse:.4f}, R² Score: {r2:.4f}")
-    
-    # Scatter plot of actual vs. predicted
-    plt.figure(figsize=(7, 5))
-    sns.scatterplot(x=y_test, y=y_pred, alpha=0.7)
-    plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--')
-    plt.xlabel("Actual AI Impact")
-    plt.ylabel("Predicted AI Impact")
-    plt.title("Actual vs. Predicted AI Impact")
-    plt.show()
-    
-    return model
-
-def perform_clustering(df, n_clusters=3):
-    """Performs KMeans clustering on the dataset and visualizes results."""
-    features = ['Tasks', 'AI models', 'AI_Workload_Ratio']
-    X = df[features]
-    
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-    
-    kmeans = KMeans(n_clusters=n_clusters, random_state=42)
-    df['Cluster'] = kmeans.fit_predict(X_scaled)
-    
-    score = silhouette_score(X_scaled, df['Cluster'])
-    print(f"Silhouette Score: {score:.4f}")
-    
-    pca = PCA(n_components=2, random_state=42)
-    X_pca = pca.fit_transform(X_scaled)
-    
-    pca_df = pd.DataFrame(X_pca, columns=['PCA1', 'PCA2'])
-    pca_df['Cluster'] = df['Cluster']
-    
-    plt.figure(figsize=(8, 6))
-    sns.scatterplot(x='PCA1', y='PCA2', hue='Cluster', data=pca_df, palette='Set1', s=100, alpha=0.7)
-    plt.title("Clusters Visualized with PCA")
-    plt.xlabel("PCA Component 1")
-    plt.ylabel("PCA Component 2")
-    plt.legend(title='Cluster')
-    plt.show()
-    
-    return df
+    acc = accuracy_score(y_test, y_pred)
+    report = classification_report(y_test, y_pred)
+    return (model, acc, report)
 
 def main():
-    """Main function to run the entire pipeline."""
-    df = load_data('data/ai_impact_on_jobs.csv')
-    df = clean_data(df)
-    visualize_data(df)
-    model = train_regression_model(df)
-    df = perform_clustering(df)
+    """
+    The main function to run the entire pipeline
+    """
+    # Load the data
+    csv_path = "data/ai_job_market_insights.csv"
+    df = load_data(csv_path)
+    print("Data Loaded Successfully")
+    print("\nData head: ", df.head())
+    print("="*50)
+    # Preprocess the data
+    x_train, x_test, y_train, y_test = preprocess_data(df)
+    print("\nData Preprocessed Successfully")
+    print("\nTraining and Testing Data Shapes")
+    print("x_train: ", x_train.shape)
+    print("x_test: ", x_test.shape)
+    print("y_train: ", y_train.shape)
+    print("y_test: ", y_test.shape)
+    print("="*50)
+    print("\nTraining the Regression Models")
+    # Train the regression models
+    training(*load_models(), x_train, x_test, y_train, y_test)
+    print("="*50)
+    print("\nTraining the Classifier")
+    # Train the classifier model
+    model, acc, report = train_classifier(df)
+    print("\nAccuracy: ", acc)
+    print("\nClassification Report: ", report)
+    print("="*50)
 
 if __name__ == "__main__":
     main()
