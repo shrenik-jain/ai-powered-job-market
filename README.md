@@ -20,15 +20,17 @@ This project aims to analyze the evolving job market in the age of AI by examini
 │
 ├── README.md
 │
+├── ai_impact_on_jobs.py
+│
+├── ai_job_market_insights.py
+│
 ├── data
 │   ├── ai_impact_on_jobs.csv
 │   └── ai_job_market_insights.csv
 │
 ├── final_presentation.pdf
 │
-├── main1.py
-│
-├── main2.py
+├── main.py
 │
 └── requirements.txt
 ```
