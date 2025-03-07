@@ -58,7 +58,7 @@ This project aims to analyze the evolving job market in the age of AI by examini
     - To see the results on AI Job Market Insights Dataset:`python3 scripts/ai_job_market_insights.py`
     - To see the results on both the Datasets: `python3 main.py`
 
-5. To view the plots and visualizations, you can run the `AI_Job_Market.ipynb` notebook either locally or in a [Google Colab environment](https://colab.research.google.com/notebooks/intro.ipynb)
+5. To view the plots and visualizations, you can run the `notebooks/AI_Job_Market.ipynb` notebook either locally or in a [Google Colab environment](https://colab.research.google.com/notebooks/intro.ipynb)
 <br>
 
 ## Contributors
