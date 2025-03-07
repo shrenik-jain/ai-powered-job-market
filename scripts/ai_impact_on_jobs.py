@@ -174,7 +174,6 @@ def train_classifier(df: pd.DataFrame) -> tuple:
 def main():
     """
     The main function to run the entire pipeline
-
     """
     # Load the data
     csv_path = "data/ai_job_market_insights.csv"
