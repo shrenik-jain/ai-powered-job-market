@@ -16,13 +16,7 @@ This project aims to analyze the evolving job market in the age of AI by examini
 ## Repository Structure
 ```
 .
-├── AI_Job_Market.ipynb
-│
 ├── README.md
-│
-├── ai_impact_on_jobs.py
-│
-├── ai_job_market_insights.py
 │
 ├── data
 │   ├── ai_impact_on_jobs.csv
@@ -32,7 +26,14 @@ This project aims to analyze the evolving job market in the age of AI by examini
 │
 ├── main.py
 │
-└── requirements.txt
+├── notebooks
+│   └── AI_Job_Market.ipynb
+│
+├── requirements.txt
+│
+└── scripts
+    ├── ai_impact_on_jobs.py
+    └── ai_job_market_insights.py
 ```
 
 <br>
@@ -53,8 +54,8 @@ This project aims to analyze the evolving job market in the age of AI by examini
 3. The data is present inside the `/data` folder as `.csv` files
 
 4. Run the main script: 
-    - To see the results on AI Impact on Jobs Dataset: `python3 ai_impact_on_jobs.py`
-    - To see the results on AI Job Market Insights Dataset:`python3 ai_job_market_insights.py`
+    - To see the results on AI Impact on Jobs Dataset: `python3 scripts/ai_impact_on_jobs.py`
+    - To see the results on AI Job Market Insights Dataset:`python3 scripts/ai_job_market_insights.py`
     - To see the results on both the Datasets: `python3 main.py`
 
 5. To view the plots and visualizations, you can run the `AI_Job_Market.ipynb` notebook either locally or in a [Google Colab environment](https://colab.research.google.com/notebooks/intro.ipynb)
