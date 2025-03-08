@@ -211,6 +211,10 @@ def clustering_task(df):
     plt.show()
 
 def main():
+    """
+    Main function to load data, clean and transform it, and perform visualizations
+    and machine learning tasks on the AI Impact on Jobs dataset.
+    """
     filepath = 'data/ai_impact_on_jobs.csv'
     df = load_data(filepath)
     

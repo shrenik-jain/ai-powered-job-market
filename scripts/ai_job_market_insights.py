@@ -370,6 +370,9 @@ def automation_risk_classification_pipeline(df):
     plt.show()
 
 def main():
+    """
+    Main function to run the AI Job Market Insights analysis.
+    """
     csv_path = "data/ai_job_market_insights.csv"
     
     df = load_data(csv_path)

@@ -14,7 +14,7 @@ def run_script(script_name):
 
 def main():
     """"
-    "Main function to run the scripts on the AI Impact On Jobs and AI Job Market Insights datasets"
+    Main function to run the scripts on the AI Impact On Jobs and AI Job Market Insights datasets
     """
     script1 = "scripts/ai_impact_on_jobs.py"
     script2 = "scripts/ai_job_market_insights.py"
